@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import { RecipeService } from '../recipes/recipe.service';
+import { RecipeServiceTs } from '../recipes/recipe.service';
 import { map, tap} from 'rxjs';
 import { Recipe } from '../recipes/recipe.model';
-
+import {Store} from "@ngrx/store";
+import * as fromApp from '../store/app.reducer'
+import * as RecipesActions from "../recipes/store/recipe.actions";
 @Injectable({
   providedIn: 'root'
 })
@@ -12,7 +14,8 @@ export class DataStorageService {
   private recipesUrl: string = 'https://recipebookapp-angular-default-rtdb.europe-west1.firebasedatabase.app/recipes.json';
 
   constructor(private http: HttpClient,
-              private recipeService: RecipeService) { }
+              private recipeService: RecipeServiceTs,
+              private store: Store<fromApp.AppState>) { }
 
   storeRecipes() {
     const recipe = this.recipeService.getRecipes();
@@ -33,7 +36,8 @@ export class DataStorageService {
         });
       }),
       tap(recipes => {
-        this.recipeService.setRecipes(recipes);
+        this.store.dispatch(new RecipesActions.SetRecipes(recipes));
+        //this.recipeService.setRecipes(recipes);
       })
     );
   }

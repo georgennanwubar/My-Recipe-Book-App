@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "recipebookapp-angular"
+  },
+  "targets": {
+    "recipebookapp-angular": {
+      "hosting": {
+        "Project": [
+          "recipebookapp-angular"
+        ]
+      }
+    }
+  }
+}

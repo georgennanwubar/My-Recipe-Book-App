@@ -1,6 +1,6 @@
 export class AuthUser {
   public email: string;
-  private password: string;
+  private readonly password: string;
   public returnSecureToken: boolean;
   public authenticated: boolean;
 
@@ -18,7 +18,7 @@ export class AuthUser {
 
 export class User extends AuthUser {
 
-  constructor( public email: string, public id: string, private _token: string, private _tokenExpirationDate: Date ) {
+  constructor( public email: string, public id: string, private _token: string, private _tokenExpirationDate: Date, public redirect?: Boolean  ) {
     super(email);
   }
 
@@ -30,10 +30,12 @@ export class User extends AuthUser {
   }
 }
 
+
+
 //@ts-ignore
 export class storedUser extends User {
 
-  constructor( public email: string, public id: string, public _token: string, public _tokenExpirationDate: Date ) {
+  constructor( public email: string, public id: string, public _token: string, public _tokenExpirationDate: Date) {
 
     super(email, id, _token, _tokenExpirationDate);
 

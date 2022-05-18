@@ -1,25 +1,33 @@
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {AuthUser, storedUser, User} from "./auth.model";
-import {AuthResponseData} from "./auth.interface";
-import {BehaviorSubject, catchError, tap, throwError} from 'rxjs';
-import {Router} from "@angular/router";
+
+import {Store} from "@ngrx/store";
+import * as fromApp from '../store/app.reducer';
+import { Logout } from "./store/auth.actions";
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private firebaseAPIKey: string = 'AIzaSyCoN-7c1_SvpRjn9L_kIKPpr6JoHDpg5qM';
-  private signUpURL: string = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+ this.firebaseAPIKey;
-  private loginURL: string = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+ this.firebaseAPIKey;
-  public user = new BehaviorSubject<User>(null);
+
   private tokenExpirationTimer: any;
 
+  constructor(private store: Store<fromApp.AppState>) {}
 
-  constructor(private http: HttpClient,
-              private router: Router) {}
+  setLogoutTimer(expirationDuration: number){
+    this.tokenExpirationTimer = setTimeout(() =>{
+      this.store.dispatch(new Logout());
+    }, expirationDuration);
+  }
 
-  signup(email: string, password: string){
+  clearLogoutTimer(){
+    if(this.tokenExpirationTimer){
+      clearTimeout(this.tokenExpirationTimer);
+      this.tokenExpirationTimer = null;
+    }
+  }
+
+/*  signup(email: string, password: string){
     return this.http.post<AuthResponseData>(this.signUpURL, new AuthUser(email, password)).pipe(
       catchError(this.handleError),
       tap(resData => {
@@ -35,9 +43,9 @@ export class AuthService {
           this.handleAuthentication(resData.email, resData.localId, resData.idToken, +resData.expiresIn);
         })
     );
-  }
+  }*/
 
-  autoLogin(){
+ /* autoLogin(){
     // const storedUser: {
     //   email:string,
     //   id: string,
@@ -55,31 +63,29 @@ export class AuthService {
     const loadedUser = new User( sUser.email, sUser.id, sUser._token, expirationDate);
 
     if(loadedUser.token){
-      this.user.next(loadedUser);
+      //this.user.next(loadedUser);
+      this.store.dispatch(new AuthActions.AuthenticateSuccess(loadedUser));
       let expirationDuration = ( expirationDate.getTime() - new Date().getTime() );
       this.autoLogout(expirationDuration);
     }
   }
 
   logout(){
-    this.user.next(null);
-    localStorage.removeItem('userData');
+    //this.user.next(null);
+    this.store.dispatch(new AuthActions.Logout());
+    //localStorage.removeItem('userData');
     if(this.tokenExpirationTimer){
       clearTimeout(this.tokenExpirationTimer);
     }
-    this.router.navigate(['/auth']);
-  }
+  }*/
 
-  autoLogout(expirationDuration: number){
-    this.tokenExpirationTimer = setTimeout(() =>{
-      this.logout();
-    }, expirationDuration);
-  }
 
-  private handleAuthentication(email: string, userId: string, token: string, expiresIn: number){
+ /* private handleAuthentication(email: string, userId: string, token: string, expiresIn: number){
     const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
     const user = new User(email, userId, token, expirationDate);
-    this.user.next(user);
+    //this.user.next(user);
+    this.store.dispatch(new AuthActions.AuthenticateSuccess(user)
+    );
     this.autoLogout(expiresIn*1000);
     localStorage.setItem('userData', JSON.stringify(user));
   }
@@ -111,5 +117,5 @@ export class AuthService {
       }
     }
     return throwError(() => errorMessage);
-  }
+  }*/
 }
